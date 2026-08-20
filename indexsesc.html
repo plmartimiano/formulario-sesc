@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapeamento Regional de Atores e Espaços</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CONFIGURAÇÃO — altere apenas este bloco no arquivo JS abaixo
+   ============================================================ */
+:root{
+  --tinta:#14243A; --tinta-70:#4A5769; --tinta-40:#8792A1;
+  --papel:#F2F3EF; --carta:#FFFFFF; --linha:#DCDFD8;
+  --musgo:#1F6B52; --musgo-esc:#17513E; --milho:#E8A33D; --alerta:#B0292F;
+  --GEAC:#7A3B8F; --GESC:#1F6B52; --GEPROS:#C1541E;
+  --GEDFE:#1D5B94; --GEAVT:#B0292F; --GEASA:#8A6A11;
+  --r:10px; --sombra:0 1px 2px rgba(20,36,58,.06), 0 6px 18px rgba(20,36,58,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--papel); color:var(--tinta);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  padding-bottom:96px;
+}
+h1,h2,h3{font-family:"Bricolage Grotesque","IBM Plex Sans",sans-serif;font-weight:800;letter-spacing:-.02em;margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:500}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+.oculto{display:none !important}
+
+/* ---------- topo ---------- */
+header{
+  position:sticky;top:0;z-index:30;background:var(--tinta);color:#fff;
+  padding:10px 0 0;box-shadow:0 2px 12px rgba(20,36,58,.18)
+}
+.topo{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.topo-cidade{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:17px;letter-spacing:-.02em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topo-sub{font-size:11px;color:#93A3B8;text-transform:uppercase;letter-spacing:.09em;font-weight:500}
+.contador{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;
+  padding:5px 12px;font-size:13px;font-weight:600;white-space:nowrap;color:#fff;cursor:pointer}
+.contador b{font-family:"Bricolage Grotesque",sans-serif;font-size:15px}
+
+/* ---------- SIGNATURE: régua de cobertura (44 marcas) ---------- */
+.regua{display:flex;gap:2px;padding:11px 0 12px;align-items:flex-end}
+.marca{flex:1;height:12px;border-radius:2px;background:rgba(255,255,255,.16);transition:background .45s ease,height .45s ease}
+.marca.feita{height:20px}
+.regua-leg{font-size:10.5px;color:#93A3B8;letter-spacing:.06em;text-transform:uppercase;padding-bottom:9px}
+
+/* ---------- blocos ---------- */
+main{padding-top:22px}
+.intro{margin-bottom:22px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--musgo);font-weight:600;margin-bottom:8px}
+h1{font-size:30px;line-height:1.08;margin-bottom:10px}
+h2{font-size:22px;line-height:1.15;margin-bottom:6px}
+p.lead{color:var(--tinta-70);font-size:15px;margin:0 0 16px}
+
+.cartao{background:var(--carta);border:1px solid var(--linha);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sombra)}
+.campo{margin-bottom:14px}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+label .op{font-weight:400;color:var(--tinta-40)}
+.ajuda{font-size:12.5px;color:var(--tinta-70);margin:-2px 0 6px}
+input,select,textarea{
+  width:100%;font-family:inherit;font-size:16px;color:var(--tinta);background:#fff;
+  border:1.5px solid var(--linha);border-radius:8px;padding:11px 12px;transition:border-color .15s
+}
+textarea{min-height:78px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--musgo);box-shadow:0 0 0 3px rgba(31,107,82,.14)}
+input.erro,select.erro,textarea.erro{border-color:var(--alerta);box-shadow:0 0 0 3px rgba(176,41,47,.12)}
+.msg-erro{color:var(--alerta);font-size:12.5px;font-weight:600;margin-top:5px}
+
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;font-weight:600;transition:transform .08s,background .15s}
+button:active{transform:translateY(1px)}
+.btn{background:var(--musgo);color:#fff;font-size:16px;padding:14px 18px;width:100%}
+.btn:hover{background:var(--musgo-esc)}
+.btn-sec{background:transparent;color:var(--tinta);border:1.5px solid var(--linha);font-size:15px;padding:12px 16px;width:100%}
+.btn-sec:hover{border-color:var(--tinta-40)}
+.btn-txt{background:none;color:var(--musgo);font-size:14px;padding:8px 0;width:auto;text-decoration:underline;text-underline-offset:3px}
+.dupla{display:flex;gap:10px}
+.dupla>*{flex:1}
+
+/* ---------- eixos ---------- */
+.eixo{display:flex;align-items:center;gap:13px;background:var(--carta);border:1px solid var(--linha);
+  border-left:5px solid var(--cor);border-radius:var(--r);padding:14px 15px;margin-bottom:10px;
+  width:100%;text-align:left;box-shadow:var(--sombra)}
+.eixo:hover{border-color:var(--tinta-40);border-left-color:var(--cor)}
+.eixo-cod{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:15px;color:var(--cor);min-width:62px}
+.eixo-temas{font-size:12.5px;color:var(--tinta-70);line-height:1.35;flex:1;min-width:0}
+.eixo-num{margin-left:auto;text-align:right;flex:none}
+.eixo-num b{font-family:"Bricolage Grotesque",sans-serif;font-size:20px;display:block;line-height:1}
+.eixo-num span{font-size:10.5px;color:var(--tinta-40);text-transform:uppercase;letter-spacing:.06em}
+
+/* ---------- perguntas ---------- */
+.tema-tit{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-40);
+  font-weight:600;margin:20px 0 8px;border-bottom:1px solid var(--linha);padding-bottom:6px}
+.perg{display:flex;gap:12px;align-items:flex-start;background:var(--carta);border:1px solid var(--linha);
+  border-radius:var(--r);padding:13px 14px;margin-bottom:8px;width:100%;text-align:left;box-shadow:var(--sombra)}
+.perg:hover{border-color:var(--musgo)}
+.perg-cod{font-size:11px;color:var(--tinta-40);letter-spacing:.04em;padding-top:2px;min-width:52px}
+.perg-txt{font-size:14.5px;font-weight:500;line-height:1.35;flex:1}
+.perg-n{background:var(--musgo);color:#fff;border-radius:999px;min-width:24px;height:24px;display:flex;
+  align-items:center;justify-content:center;font-size:12.5px;font-weight:700;margin-top:1px}
+.perg-n.zero{background:#EDEFE9;color:var(--tinta-40)}
+
+/* ---------- registros ---------- */
+.reg{background:var(--carta);border:1px solid var(--linha);border-radius:var(--r);padding:13px 14px;margin-bottom:9px;box-shadow:var(--sombra)}
+.reg-topo{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.reg-nome{font-weight:600;font-size:15px;line-height:1.25}
+.reg-meta{font-size:12px;color:var(--tinta-40);margin-top:3px}
+.selo{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.selo.ok{background:#E4F0EA;color:var(--musgo-esc)}
+.selo.pend{background:#FBEEDA;color:#8A5B0B}
+.selo.falha{background:#F8E3E3;color:var(--alerta)}
+
+.aviso{border-radius:var(--r);padding:13px 15px;font-size:13.5px;line-height:1.45;margin-bottom:14px}
+.aviso.amb{background:#FBEEDA;border:1px solid #EFD5A6;color:#6E4A08}
+.aviso.info{background:#E7EDF4;border:1px solid #C9D6E6;color:#1B3A5C}
+.vazio{text-align:center;padding:30px 16px;color:var(--tinta-70);font-size:14.5px}
+
+/* ---------- barra fixa ---------- */
+.barra{position:fixed;left:0;right:0;bottom:0;background:rgba(242,243,239,.96);backdrop-filter:blur(8px);
+  border-top:1px solid var(--linha);padding:10px 0 calc(10px + env(safe-area-inset-bottom));z-index:40}
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(140%);bottom:88px;background:var(--tinta);
+  color:#fff;padding:12px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:60;pointer-events:none;
+  transition:transform .3s cubic-bezier(.2,.9,.3,1.2);box-shadow:0 8px 24px rgba(20,36,58,.28);max-width:90vw;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.rodape{font-size:12px;color:var(--tinta-40);text-align:center;padding:26px 0 10px;line-height:1.5}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="topo">
+      <div style="min-width:0">
+        <div class="topo-sub">Mapeamento regional</div>
+        <div class="topo-cidade" id="topoCidade">—</div>
+      </div>
+      <button class="contador" id="btnContador"><b id="topoNum">0</b> registros</button>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="regua" id="regua" style="flex:1"></div>
+      <div class="regua-leg"><span id="reguaN">0</span>/44</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ IDENTIFICAÇÃO ============ -->
+  <section id="telaIdent" class="oculto">
+    <div class="intro">
+      <div class="eyebrow">Antes de começar</div>
+      <h1>Quem está mapeando a cidade?</h1>
+      <p class="lead">Leva um minuto. Depois disso, você registra cada ator ou espaço em poucos toques — e pode voltar quantas vezes quiser pelo mesmo link.</p>
+    </div>
+    <div class="cartao">
+      <div class="campo">
+        <label for="fMunicipio">Município</label>
+        <input id="fMunicipio" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="fUnidade">Unidade SESC de referência</label>
+        <input id="fUnidade" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="fRespondente">Seu nome</label>
+        <input id="fRespondente" autocomplete="name">
+      </div>
+      <div class="campo">
+        <label for="fCargo">Cargo, função ou vínculo</label>
+        <input id="fCargo" placeholder="Ex.: agente cultural da Secretaria de Cultura">
+      </div>
+      <div class="dupla">
+        <div class="campo">
+          <label for="fTelefone">Telefone ou WhatsApp</label>
+          <input id="fTelefone" inputmode="tel" autocomplete="tel">
+        </div>
+        <div class="campo">
+          <label for="fEmail">E-mail</label>
+          <input id="fEmail" inputmode="email" autocomplete="email">
+        </div>
+      </div>
+      <button class="btn" id="btnSalvarIdent">Começar o mapeamento</button>
+    </div>
+    <div class="aviso info">Os contatos que você registrar serão usados apenas para a articulação de programação cultural entre o SESC e o município. O acesso à base é restrito à equipe de coordenação.</div>
+  </section>
+
+  <!-- ============ EIXOS ============ -->
+  <section id="telaEixos" class="oculto">
+    <div class="intro">
+      <div class="eyebrow">Escolha por onde começar</div>
+      <h1 id="tituloEixos">O que sua cidade tem</h1>
+      <p class="lead">Cada área reúne perguntas sobre quem faz cultura, esporte, ambiente e comunidade na cidade. Comece pela que você conhece melhor — não precisa seguir a ordem nem terminar hoje.</p>
+    </div>
+    <div id="listaEixos"></div>
+    <button class="btn-sec" id="btnVerRegistros" style="margin-top:6px">Ver tudo que já registrei</button>
+    <div class="rodape">Trabalhe em equipe se puder: três pessoas que conhecem a cidade por dentro, numa mesa só, rendem mais do que um formulário respondido sozinho.</div>
+  </section>
+
+  <!-- ============ PERGUNTAS ============ -->
+  <section id="telaPerguntas" class="oculto">
+    <button class="btn-txt" id="btnVoltarEixos">← Todas as áreas</button>
+    <div class="intro" style="margin-top:6px">
+      <div class="eyebrow" id="eixoEyebrow">—</div>
+      <h2 id="eixoTitulo">—</h2>
+      <p class="lead" id="eixoResumo">—</p>
+    </div>
+    <div id="listaPerguntas"></div>
+  </section>
+
+  <!-- ============ FICHA ============ -->
+  <section id="telaFicha" class="oculto">
+    <button class="btn-txt" id="btnVoltarPerguntas">← Voltar</button>
+    <div class="cartao" style="margin-top:6px;border-left:5px solid var(--musgo)">
+      <div class="mono" style="font-size:11.5px;color:var(--tinta-40)" id="fichaCod">—</div>
+      <div style="font-weight:600;font-size:16px;line-height:1.3;margin-top:4px" id="fichaPergunta">—</div>
+      <div class="ajuda" style="margin-top:7px" id="fichaDica">—</div>
+    </div>
+    <div class="cartao">
+      <div class="campo">
+        <label for="gNome">Nome do ator, espaço ou manifestação</label>
+        <div class="ajuda">Nome próprio, como as pessoas da cidade chamam. Não escreva a categoria.</div>
+        <input id="gNome" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="gTipo">Tipo</label>
+        <select id="gTipo"></select>
+      </div>
+      <div class="campo">
+        <label for="gDescricao">O que faz, em poucas linhas</label>
+        <div class="ajuda">O suficiente para quem nunca ouviu falar entender por que essa pessoa ou grupo importa na cidade.</div>
+        <textarea id="gDescricao"></textarea>
+      </div>
+      <div class="campo">
+        <label for="gContatoNome">Pessoa de contato <span class="op">— quem atende</span></label>
+        <input id="gContatoNome" autocomplete="off">
+      </div>
+      <div class="dupla">
+        <div class="campo">
+          <label for="gTelefone">Telefone ou WhatsApp</label>
+          <input id="gTelefone" inputmode="tel" placeholder="ou escreva: a confirmar">
+        </div>
+        <div class="campo">
+          <label for="gNatureza">Natureza <span class="op">(opcional)</span></label>
+          <select id="gNatureza"></select>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-sec" id="btnMais" style="margin-bottom:12px">+ Preencher os campos opcionais</button>
+
+    <div class="cartao oculto" id="blocoMais">
+      <div class="dupla">
+        <div class="campo"><label for="gBairro">Bairro ou distrito</label><input id="gBairro"></div>
+        <div class="campo"><label for="gZona">Zona</label><select id="gZona"></select></div>
+      </div>
+      <div class="campo"><label for="gEndereco">Endereço</label><input id="gEndereco" placeholder="Rua, número"></div>
+      <div class="dupla">
+        <div class="campo"><label for="gAno">Ano de início</label><input id="gAno" inputmode="numeric" placeholder="Ex.: 1998"></div>
+        <div class="campo"><label for="gParceria">Aberto a parcerias?</label><select id="gParceria"></select></div>
+      </div>
+      <div class="campo"><label for="gEmail">E-mail</label><input id="gEmail" inputmode="email"></div>
+      <div class="campo"><label for="gRedes">Redes sociais ou site</label><input id="gRedes" placeholder="@perfil"></div>
+      <div class="campo">
+        <label for="gForma">Possível forma de atuação com o SESC</label>
+        <select id="gForma"></select>
+      </div>
+      <div class="campo"><label for="gFonte">Como você soube</label><select id="gFonte"></select></div>
+      <div class="campo">
+        <label for="gObs">Observações</label>
+        <div class="ajuda">Pistas valem muito: horários, com quem falar, restrições, quem indicou.</div>
+        <textarea id="gObs"></textarea>
+      </div>
+    </div>
+
+    <div class="barra"><div class="wrap"><button class="btn" id="btnSalvarReg">Salvar registro</button></div></div>
+  </section>
+
+  <!-- ============ MEUS REGISTROS ============ -->
+  <section id="telaMeus" class="oculto">
+    <button class="btn-txt" id="btnVoltarEixos2">← Todas as áreas</button>
+    <div class="intro" style="margin-top:6px">
+      <div class="eyebrow">Seu mapeamento</div>
+      <h2 id="meusTitulo">Registros enviados</h2>
+      <p class="lead" id="meusResumo">—</p>
+    </div>
+    <div id="avisoPendentes"></div>
+    <div id="listaMeus"></div>
+    <button class="btn-sec" id="btnBaixarCsv" style="margin-top:14px">Baixar uma cópia em planilha</button>
+    <div class="rodape">A cópia é um backup seu. O envio ao SESC já acontece a cada registro salvo.</div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================================
+   1. CONFIGURAÇÃO — é só isto que muda entre Google Sheets e Supabase
+   ========================================================================== */
+const CONFIG = {
+  modo: "sheets",                 // "sheets" ou "supabase"
+
+  // --- modo "sheets" (Google Apps Script) ---
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbz4WmfBVIatt2saaCplnxSIBmaYA5QUNAl4mzQXZQKaZKPhfyj9uyIB3Su-Npir9lbErQ/exec",
+
+  // --- modo "supabase" ---
+  supabaseUrl:  "https://SEU-PROJETO.supabase.co",
+  supabaseKey:  "SUA_CHAVE_ANON",
+  supabaseTabela: "registros"
+};
+
+/* ==========================================================================
+   2. CONTEÚDO — 44 perguntas, listas e eixos
+   ========================================================================== */
+const EIXOS = {
+  GEAC:  {temas:"Música, Literatura, Cinema, Teatro, Dança, Circo"},
+  GESC:  {temas:"Acessibilidade, Meio ambiente, Valorização social, Turismo"},
+  GEPROS:{temas:"Terceira idade, Crianças, Jovens, Direitos humanos, Identidade e diversidade"},
+  GEDFE: {temas:"Esportes"},
+  GEAVT: {temas:"Artes visuais"},
+  GEASA: {temas:"Alimentação, Saúde"}
+};
+
+const PERGUNTAS = [
+ ["MUS-01","GEAC","MÚSICA","Quais os músicos e bandas em atividade na cidade?","Um registro para cada músico ou banda."],
+ ["MUS-02","GEAC","MÚSICA","Possui escolas de música na cidade?","Um registro por escola. Informe se é pública ou privada no campo Natureza."],
+ ["MUS-03","GEAC","MÚSICA","Possui algum festival de arte ou música na cidade?","Um registro por festival."],
+ ["LIT-01","GEAC","LITERATURA","Há algum clube ou círculo do livro na cidade?","Um registro por clube ou círculo."],
+ ["LIT-02","GEAC","LITERATURA","Há algum contista, poeta, contador de histórias ou escritor na cidade?","Um registro por pessoa."],
+ ["LIT-03","GEAC","LITERATURA","Há alguma obra escrita sobre a cidade?","Um registro por obra. No contato, quem escreveu ou quem tem o exemplar."],
+ ["LIT-04","GEAC","LITERATURA","Existem bibliotecas na cidade?","Um registro por biblioteca, incluindo as comunitárias e escolares abertas ao público."],
+ ["CIN-01","GEAC","CINEMA","Há produtores ou produtoras de audiovisual na cidade?","Um registro por produtor ou produtora."],
+ ["TEA-01","GEAC","TEATRO","Há escolas de teatro na cidade?","Um registro por escola."],
+ ["TEA-02","GEAC","TEATRO","Há algum ator ou atriz de projeção nacional vivendo na cidade?","Um registro por pessoa."],
+ ["TEA-03","GEAC","TEATRO","Existe algum grupo amador ou profissional de teatro na cidade?","Um registro por grupo."],
+ ["DAN-01","GEAC","DANÇA","Há escolas de dança na cidade?","Um registro por escola."],
+ ["DAN-02","GEAC","DANÇA","Há algum profissional de dança conhecido na cidade?","Um registro por profissional."],
+ ["CIR-01","GEAC","CIRCO","Existe alguma companhia de circo na cidade?","Um registro por companhia."],
+ ["CIR-02","GEAC","CIRCO","Existe alguma escola de circo na cidade?","Um registro por escola."],
+ ["ACE-01","GESC","ACESSIBILIDADE","Há algum grupo que atua pelos direitos das pessoas com deficiência na cidade?","Um registro por grupo ou entidade — surdos, cegos, deficiência intelectual, mobilidade."],
+ ["AMB-01","GESC","MEIO AMBIENTE","Quais ONGs ambientais existem na cidade?","Um registro por ONG."],
+ ["AMB-02","GESC","MEIO AMBIENTE","Quais as lutas ambientais mais importantes para a cidade?","Um registro por pauta — limpeza do rio, destino do lixo, mata ameaçada, agrotóxico. No contato, quem lidera a pauta."],
+ ["AMB-03","GESC","MEIO AMBIENTE","Existe algum ambientalista reconhecido pela cidade?","Um registro por pessoa."],
+ ["VAL-01","GESC","VALORIZAÇÃO SOCIAL","Existem grupos de artesãos na cidade?","Um registro por grupo ou associação."],
+ ["VAL-02","GESC","VALORIZAÇÃO SOCIAL","Algum artesanato típico é produzido na cidade?","Um registro por tipo de artesanato."],
+ ["VAL-03","GESC","VALORIZAÇÃO SOCIAL","Existe algum grupo informal de empreendedores na cidade?","Um registro por grupo."],
+ ["TUR-01","GESC","TURISMO","Existem destinos interessantes para visitar na cidade?","Um registro por destino — fazendas, pontos históricos, produção rural, trilhas."],
+ ["TID-01","GEPROS","TERCEIRA IDADE","Há grupos de terceira idade que se reúnem regularmente na cidade?","Um registro por grupo."],
+ ["CRI-01","GEPROS","CRIANÇAS","Existem brinquedotecas na cidade?","Um registro por brinquedoteca."],
+ ["JOV-01","GEPROS","JOVENS","Existem grupos de jovens articulados na cidade?","Um registro por grupo — escoteiros, grêmio estudantil, hip hop, coletivos."],
+ ["DHU-01","GEPROS","DIREITOS HUMANOS","Existe algum movimento de direitos humanos na cidade?","Um registro por movimento — população de rua, população carcerária, refugiados, imigrantes, LGBTQIA+."],
+ ["DHU-02","GEPROS","DIREITOS HUMANOS","Existe alguma ONG em defesa da sociedade civil na cidade?","Um registro por ONG."],
+ ["IDD-01","GEPROS","IDENTIDADE E DIVERSIDADE","Existe algum movimento em defesa do gênero ou da sexualidade na cidade?","Um registro por movimento ou coletivo."],
+ ["IDD-02","GEPROS","IDENTIDADE E DIVERSIDADE","Há alguma dança típica na cidade?","Um registro por manifestação ou grupo — catira, samba rural, folia, congada."],
+ ["IDD-03","GEPROS","IDENTIDADE E DIVERSIDADE","Há patrimônios históricos tombados na cidade?","Um registro por bem tombado."],
+ ["IDD-04","GEPROS","IDENTIDADE E DIVERSIDADE","Existem coletivos culturais independentes na cidade?","Um registro por coletivo."],
+ ["ESP-01","GEDFE","ESPORTES","Quais escolas de modalidades esportivas existem na cidade?","Um registro por escola."],
+ ["ESP-02","GEDFE","ESPORTES","Quais as modalidades esportivas mais praticadas na cidade?","Um registro por modalidade. No contato, quem organiza a prática."],
+ ["ESP-03","GEDFE","ESPORTES","Existem grupos articulados praticantes de modalidades esportivas na cidade?","Um registro por grupo — times, corrida, ciclismo, skate."],
+ ["AVI-01","GEAVT","ARTES VISUAIS","Há artistas plásticos na cidade?","Um registro por artista."],
+ ["AVI-02","GEAVT","ARTES VISUAIS","Há ateliês de arte na cidade?","Um registro por ateliê."],
+ ["AVI-03","GEAVT","ARTES VISUAIS","Há museus na cidade?","Um registro por museu. Diga o tipo na descrição — artes plásticas, histórico, religioso."],
+ ["AVI-04","GEAVT","ARTES VISUAIS","Existem galerias de arte na cidade?","Um registro por galeria."],
+ ["ALI-01","GEASA","ALIMENTAÇÃO","Há alguma quituteira, cozinheira ou chef reconhecida na cidade?","Um registro por pessoa."],
+ ["ALI-02","GEASA","ALIMENTAÇÃO","Qual restaurante faz uma comida típica da cidade?","Um registro por restaurante."],
+ ["ALI-03","GEASA","ALIMENTAÇÃO","Existe algum produto gastronômico produzido ou plantado na cidade?","Um registro por produto."],
+ ["ALI-04","GEASA","ALIMENTAÇÃO","Há alguma festa de alimento ou concurso gastronômico na cidade?","Um registro por festa ou festival — milho, mandioca, pastel, café."],
+ ["SAU-01","GEASA","SAÚDE","Existe algum grupo de medicina alternativa ou práticas integrativas na cidade?","Um registro por grupo."]
+];
+
+const LISTAS = {
+  tipo:["Pessoa física (artista, mestre, profissional)","Grupo ou coletivo informal","Associação, OSC ou ONG",
+        "Empresa ou MEI","Órgão ou programa público","Equipamento ou espaço físico","Evento, festa ou festival",
+        "Bem cultural, produto ou manifestação","Outro"],
+  natureza:["Pública","Privada","Mista (parceria público-privada)","Comunitária ou informal","Não se aplica"],
+  zona:["Urbana","Rural","Distrito","Itinerante, sem sede fixa"],
+  parceria:["Sim","Não","A confirmar"],
+  forma:["Oficina, curso ou vivência","Apresentação artística","Roda de conversa ou palestra","Exposição",
+         "Mostra, festa ou festival","Feira ou comercialização","Visita técnica ou percurso guiado",
+         "Prestação de serviço ou fornecedor local","Curadoria ou consultoria de conteúdo","Ainda a definir"],
+  fonte:["Conhecimento próprio da equipe","Indicação de terceiros","Cadastro da prefeitura","Internet ou redes sociais","Visita ou contato direto"]
+};
+
+/* ==========================================================================
+   3. ESTADO E ARMAZENAMENTO LOCAL
+   ========================================================================== */
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const CHAVE_ID = "map_ident_v1", CHAVE_REG = "map_registros_v1";
+
+let ident = JSON.parse(localStorage.getItem(CHAVE_ID) || "null");
+let registros = JSON.parse(localStorage.getItem(CHAVE_REG) || "[]");
+let eixoAtual = null, perguntaAtual = null;
+
+const salvarLocal = () => {
+  localStorage.setItem(CHAVE_ID, JSON.stringify(ident));
+  localStorage.setItem(CHAVE_REG, JSON.stringify(registros));
+};
+
+function toast(txt, ms=2600){
+  const t = $("toast"); t.textContent = txt; t.classList.add("on");
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove("on"), ms);
+}
+
+/* ==========================================================================
+   4. ENVIO — adaptador para Sheets ou Supabase
+   ========================================================================== */
+async function enviar(reg){
+  if (CONFIG.modo === "supabase"){
+    const r = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.supabaseTabela}`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "apikey":CONFIG.supabaseKey,
+                "Authorization":`Bearer ${CONFIG.supabaseKey}`, "Prefer":"return=minimal" },
+      body: JSON.stringify(reg)
+    });
+    if (!r.ok) throw new Error("HTTP "+r.status);
+    return true;
+  }
+  // Apps Script: text/plain evita a requisição de verificação prévia (preflight) do navegador
+  const r = await fetch(CONFIG.appsScriptUrl, {
+    method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(reg)
+  });
+  if (!r.ok) throw new Error("HTTP "+r.status);
+  const j = await r.json().catch(()=>({ok:true}));
+  if (j && j.ok === false) throw new Error(j.erro || "recusado");
+  return true;
+}
+
+async function sincronizar(silencioso=true){
+  const pend = registros.filter(r => r._status !== "ok");
+  if (!pend.length) return;
+  let enviados = 0;
+  for (const r of pend){
+    try{
+      const {_status, ...limpo} = r;
+      await enviar(limpo);
+      r._status = "ok"; enviados++;
+    }catch(e){ r._status = "falha"; }
+  }
+  salvarLocal(); pintarTudo();
+  if (enviados && !silencioso) toast(`${enviados} registro${enviados>1?"s":""} enviado${enviados>1?"s":""}`);
+  if (enviados && silencioso) toast(`${enviados} registro${enviados>1?"s":""} pendente${enviados>1?"s":""} foi enviado agora`);
+}
+
+/* ==========================================================================
+   5. NAVEGAÇÃO
+   ========================================================================== */
+const TELAS = ["telaIdent","telaEixos","telaPerguntas","telaFicha","telaMeus"];
+function ir(tela){
+  TELAS.forEach(t => $(t).classList.toggle("oculto", t !== tela));
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+/* ==========================================================================
+   6. RÉGUA DE COBERTURA E CONTADORES
+   ========================================================================== */
+function contaPorCodigo(cod){ return registros.filter(r => r.codigo === cod).length; }
+function contaPorEixo(eixo){ return registros.filter(r => r.eixo === eixo).length; }
+
+function pintarRegua(){
+  const regua = $("regua");
+  if (!regua.children.length){
+    PERGUNTAS.forEach(p => {
+      const d = document.createElement("div");
+      d.className = "marca"; d.title = p[0];
+      regua.appendChild(d);
+    });
+  }
+  let feitas = 0;
+  PERGUNTAS.forEach((p,i) => {
+    const tem = contaPorCodigo(p[0]) > 0;
+    if (tem) feitas++;
+    const m = regua.children[i];
+    m.classList.toggle("feita", tem);
+    m.style.background = tem ? `var(--${p[1]})` : "rgba(255,255,255,.16)";
+  });
+  $("reguaN").textContent = feitas;
+  $("topoNum").textContent = registros.length;
+  $("topoCidade").textContent = (ident && ident.municipio) || params.get("m") || "—";
+}
+
+/* ==========================================================================
+   7. TELAS
+   ========================================================================== */
+function pintarEixos(){
+  const box = $("listaEixos"); box.innerHTML = "";
+  Object.keys(EIXOS).forEach(cod => {
+    const n = contaPorEixo(cod);
+    const b = document.createElement("button");
+    b.className = "eixo"; b.style.setProperty("--cor", `var(--${cod})`);
+    b.innerHTML = `<div class="eixo-cod">${cod}</div>
+      <div class="eixo-temas">${EIXOS[cod].temas}</div>
+      <div class="eixo-num"><b style="color:var(--${cod})">${n}</b><span>${n===1?"registro":"registros"}</span></div>`;
+    b.onclick = () => abrirEixo(cod);
+    box.appendChild(b);
+  });
+  const nome = ident ? ident.municipio : "sua cidade";
+  $("tituloEixos").textContent = registros.length
+    ? `${nome} já tem ${registros.length} ${registros.length===1?"registro":"registros"}`
+    : "O que sua cidade tem";
+}
+
+function abrirEixo(cod){
+  eixoAtual = cod;
+  $("eixoEyebrow").textContent = cod;
+  $("eixoTitulo").textContent = EIXOS[cod].temas;
+  const n = contaPorEixo(cod);
+  $("eixoResumo").textContent = n
+    ? `${n} ${n===1?"registro":"registros"} nesta área. Toque em qualquer pergunta para acrescentar mais.`
+    : "Toque na pergunta que você sabe responder. Pergunta sem resposta na cidade é só deixar em branco.";
+  const box = $("listaPerguntas"); box.innerHTML = "";
+  let temaCorrente = null;
+  PERGUNTAS.filter(p => p[1] === cod).forEach(p => {
+    if (p[2] !== temaCorrente){
+      temaCorrente = p[2];
+      const h = document.createElement("div");
+      h.className = "tema-tit"; h.textContent = temaCorrente;
+      box.appendChild(h);
+    }
+    const n = contaPorCodigo(p[0]);
+    const b = document.createElement("button");
+    b.className = "perg";
+    b.innerHTML = `<div class="perg-n ${n?"":"zero"}">${n}</div>
+      <div style="flex:1"><div class="perg-txt">${p[3]}</div>
+      <div class="perg-cod mono" style="margin-top:4px">${p[0]}</div></div>`;
+    b.onclick = () => abrirFicha(p);
+    box.appendChild(b);
+  });
+  ir("telaPerguntas");
+}
+
+function selects(){
+  const mapa = {gTipo:"tipo", gNatureza:"natureza", gZona:"zona", gParceria:"parceria", gForma:"forma", gFonte:"fonte"};
+  Object.entries(mapa).forEach(([id, lista]) => {
+    const s = $(id); s.innerHTML = "";
+    const vazio = document.createElement("option");
+    vazio.value = ""; vazio.textContent = id === "gTipo" ? "Selecione…" : "—";
+    s.appendChild(vazio);
+    LISTAS[lista].forEach(v => {
+      const o = document.createElement("option"); o.value = v; o.textContent = v; s.appendChild(o);
+    });
+  });
+}
+
+function abrirFicha(p){
+  perguntaAtual = p;
+  $("fichaCod").textContent = p[0];
+  $("fichaPergunta").textContent = p[3];
+  $("fichaDica").textContent = p[4];
+  ["gNome","gDescricao","gContatoNome","gTelefone","gBairro","gEndereco","gAno","gEmail","gRedes","gObs"]
+    .forEach(id => { $(id).value = ""; $(id).classList.remove("erro"); });
+  ["gTipo","gNatureza","gZona","gParceria","gForma","gFonte"].forEach(id => { $(id).value=""; $(id).classList.remove("erro"); });
+  $("blocoMais").classList.add("oculto");
+  $("btnMais").textContent = "+ Preencher os campos opcionais";
+  document.querySelectorAll(".msg-erro").forEach(e => e.remove());
+  ir("telaFicha");
+}
+
+function pintarMeus(){
+  const box = $("listaMeus"); box.innerHTML = "";
+  const pend = registros.filter(r => r._status !== "ok").length;
+  $("meusTitulo").textContent = registros.length ? `${registros.length} ${registros.length===1?"registro":"registros"}` : "Nada registrado ainda";
+  $("meusResumo").textContent = registros.length
+    ? "Do mais recente para o mais antigo."
+    : "Volte às áreas e comece pela pergunta mais fácil de responder.";
+  const av = $("avisoPendentes");
+  av.innerHTML = pend
+    ? `<div class="aviso amb"><b>${pend} ${pend===1?"registro ainda não foi enviado":"registros ainda não foram enviados"}.</b>
+       Estão salvos neste aparelho. Verifique a conexão e toque abaixo para tentar de novo.
+       <button class="btn-sec" style="margin-top:10px" onclick="sincronizar(false)">Tentar enviar de novo</button></div>`
+    : "";
+  [...registros].reverse().forEach(r => {
+    const selo = r._status === "ok" ? `<span class="selo ok">enviado</span>`
+               : r._status === "falha" ? `<span class="selo falha">não enviado</span>`
+               : `<span class="selo pend">enviando</span>`;
+    const d = document.createElement("div");
+    d.className = "reg";
+    d.innerHTML = `<div class="reg-topo"><div><div class="reg-nome">${escapar(r.nome)}</div>
+      <div class="reg-meta"><span class="mono">${r.codigo}</span> · ${escapar(r.tema)}</div></div>${selo}</div>`;
+    box.appendChild(d);
+  });
+  if (!registros.length) box.innerHTML = `<div class="vazio">Seu primeiro registro pode ser a pessoa que você lembrou agora mesmo.</div>`;
+  ir("telaMeus");
+}
+
+const escapar = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function pintarTudo(){ pintarRegua(); pintarEixos(); }
+
+/* ==========================================================================
+   8. AÇÕES
+   ========================================================================== */
+function marcarErro(id, msg){
+  const el = $(id); el.classList.add("erro");
+  const m = document.createElement("div"); m.className = "msg-erro"; m.textContent = msg;
+  el.parentNode.appendChild(m);
+}
+
+function limparErro(el){
+  if (!el || !el.classList || !el.classList.contains("erro")) return;
+  el.classList.remove("erro");
+  const m = el.parentNode.querySelector(".msg-erro");
+  if (m) m.remove();
+}
+document.addEventListener("input",  e => limparErro(e.target));
+document.addEventListener("change", e => limparErro(e.target));
+
+$("btnSalvarIdent").onclick = () => {
+  document.querySelectorAll(".msg-erro").forEach(e => e.remove());
+  ["fMunicipio","fRespondente"].forEach(id => $(id).classList.remove("erro"));
+  let ok = true;
+  if (!$("fMunicipio").value.trim()){ marcarErro("fMunicipio","Informe o município."); ok = false; }
+  if (!$("fRespondente").value.trim()){ marcarErro("fRespondente","Informe seu nome."); ok = false; }
+  if (!ok) return;
+  ident = {
+    municipio: $("fMunicipio").value.trim(),
+    unidade_sesc: $("fUnidade").value.trim(),
+    respondente: $("fRespondente").value.trim(),
+    respondente_cargo: $("fCargo").value.trim(),
+    respondente_telefone: $("fTelefone").value.trim(),
+    respondente_email: $("fEmail").value.trim(),
+    token: params.get("k") || ""
+  };
+  salvarLocal(); pintarTudo(); ir("telaEixos");
+  toast("Tudo pronto. Comece pela área que você conhece melhor.");
+};
+
+$("btnMais").onclick = () => {
+  const b = $("blocoMais"); const aberto = !b.classList.contains("oculto");
+  b.classList.toggle("oculto", aberto);
+  $("btnMais").textContent = aberto ? "+ Preencher os campos opcionais" : "− Esconder os campos opcionais";
+};
+
+$("btnSalvarReg").onclick = async () => {
+  document.querySelectorAll(".msg-erro").forEach(e => e.remove());
+  ["gNome","gTipo","gDescricao"].forEach(id => $(id).classList.remove("erro"));
+  let ok = true;
+  if (!$("gNome").value.trim()){ marcarErro("gNome","Escreva o nome — é o que identifica o registro."); ok = false; }
+  if (!$("gTipo").value){ marcarErro("gTipo","Escolha um tipo."); ok = false; }
+  if (!$("gDescricao").value.trim()){ marcarErro("gDescricao","Uma frase já basta."); ok = false; }
+  if (!ok){ $("gNome").scrollIntoView({behavior:"smooth", block:"center"}); return; }
+
+  const p = perguntaAtual;
+  const reg = {
+    id: (crypto.randomUUID ? crypto.randomUUID() : Date.now()+"-"+Math.random().toString(16).slice(2)),
+    enviado_em: new Date().toISOString(),
+    municipio: ident.municipio, unidade_sesc: ident.unidade_sesc,
+    respondente: ident.respondente, respondente_contato: [ident.respondente_telefone, ident.respondente_email].filter(Boolean).join(" · "),
+    token: ident.token,
+    codigo:p[0], eixo:p[1], tema:p[2], pergunta:p[3],
+    nome:$("gNome").value.trim(), tipo:$("gTipo").value, natureza:$("gNatureza").value,
+    descricao:$("gDescricao").value.trim(), ano_inicio:$("gAno").value.trim(),
+    endereco:$("gEndereco").value.trim(), bairro:$("gBairro").value.trim(), zona:$("gZona").value,
+    contato_nome:$("gContatoNome").value.trim(), telefone:$("gTelefone").value.trim(),
+    email:$("gEmail").value.trim(), redes:$("gRedes").value.trim(),
+    parceria:$("gParceria").value, forma_sesc:$("gForma").value,
+    fonte:$("gFonte").value, observacoes:$("gObs").value.trim()
+  };
+
+  registros.push({...reg, _status:"pendente"});
+  salvarLocal(); pintarTudo();
+  const guardado = registros[registros.length-1];
+
+  const semContato = !reg.contato_nome && !reg.telefone;
+  toast(semContato ? "Registro salvo. Vale voltar depois e acrescentar um contato." : "Registro salvo");
+  abrirEixo(p[1]);
+
+  try{ await enviar(reg); guardado._status = "ok"; }
+  catch(e){ guardado._status = "falha"; toast("Salvo neste aparelho, mas ainda não enviado. Tentaremos de novo sozinho."); }
+  salvarLocal(); pintarTudo();
+};
+
+$("btnVoltarEixos").onclick = () => { pintarEixos(); ir("telaEixos"); };
+$("btnVoltarEixos2").onclick = () => { pintarEixos(); ir("telaEixos"); };
+$("btnVoltarPerguntas").onclick = () => abrirEixo(perguntaAtual[1]);
+$("btnVerRegistros").onclick = pintarMeus;
+$("btnContador").onclick = () => { if (ident) pintarMeus(); };
+
+$("btnBaixarCsv").onclick = () => {
+  const cols = ["id","enviado_em","municipio","unidade_sesc","respondente","respondente_contato","codigo","pergunta",
+    "tema","eixo","nome","tipo","natureza","descricao","ano_inicio","endereco","bairro","zona","contato_nome",
+    "telefone","email","redes","parceria","forma_sesc","fonte","observacoes"];
+  const esc = v => `"${String(v ?? "").replace(/"/g,'""')}"`;
+  const csv = "\uFEFF" + [cols.join(";"), ...registros.map(r => cols.map(c => esc(r[c])).join(";"))].join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+  a.download = `mapeamento-${(ident?.municipio || "municipio").toLowerCase().replace(/\s+/g,"-")}.csv`;
+  a.click();
+  toast("Cópia baixada");
+};
+
+/* ==========================================================================
+   9. INÍCIO
+   ========================================================================== */
+(function iniciar(){
+  selects();
+  const mUrl = params.get("m"), uUrl = params.get("u");
+  if (ident && mUrl && ident.municipio !== mUrl) ident = null;   // link de outro município
+  if (ident){
+    pintarTudo(); pintarEixos(); ir("telaEixos");
+    if (registros.some(r => r._status !== "ok")) sincronizar(true);
+  } else {
+    if (mUrl) $("fMunicipio").value = mUrl;
+    if (uUrl) $("fUnidade").value = uUrl;
+    $("topoCidade").textContent = mUrl || "—";
+    pintarRegua(); ir("telaIdent");
+  }
+  window.addEventListener("online", () => sincronizar(true));
+})();
+</script>
+</body>
+</html>
