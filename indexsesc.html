@@ -179,7 +179,7 @@ button:active{transform:translateY(1px)}
       <div class="dupla">
         <div class="campo">
           <label for="fTelefone">Telefone ou WhatsApp</label>
-          <input id="fTelefone" inputmode="tel" autocomplete="tel">
+          <input id="fTelefone" inputmode="tel" autocomplete="tel" placeholder="(19) 99999-0000">
         </div>
         <div class="campo">
           <label for="fEmail">E-mail</label>
@@ -239,12 +239,13 @@ button:active{transform:translateY(1px)}
       </div>
       <div class="campo">
         <label for="gContatoNome">Pessoa de contato <span class="op">— quem atende</span></label>
-        <input id="gContatoNome" autocomplete="off">
+        <div class="ajuda">Comece o telefone pelo DDD. Se não souber o número agora, escreva "a confirmar".</div>
+         <input id="gContatoNome" autocomplete="off">
       </div>
       <div class="dupla">
         <div class="campo">
           <label for="gTelefone">Telefone ou WhatsApp</label>
-          <input id="gTelefone" inputmode="tel" placeholder="ou escreva: a confirmar">
+          <input id="gTelefone" inputmode="tel" placeholder="(19) 99999-0000">
         </div>
         <div class="campo">
           <label for="gNatureza">Natureza <span class="op">(opcional)</span></label>
